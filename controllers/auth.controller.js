@@ -1,8 +1,8 @@
-const db = require('../database/db');
+const db = require('../database/mysql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'super-secret-key';
+const SECRET = process.env.JWT_SECRET || 'eSWGSefmDNtD3HqxqDk50K33CmTaErxXXZDqM20V0jD';
 
 exports.login = async (req, res) => {
   try {

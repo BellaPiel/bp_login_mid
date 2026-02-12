@@ -8,7 +8,7 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body || {};
 
-    // Validación básica
+    /* ================= VALIDACIÓN ================= */
     if (!email || !password) {
       return res.status(400).json({
         ok: false,
@@ -16,6 +16,7 @@ exports.login = async (req, res) => {
       });
     }
 
+    /* ================= USUARIO ================= */
     const [usuarios] = await db.query(
       'SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ?',
       [email]
@@ -30,6 +31,7 @@ exports.login = async (req, res) => {
 
     const usuario = usuarios[0];
 
+    /* ================= PASSWORD ================= */
     const match = await bcrypt.compare(password, usuario.password);
     if (!match) {
       return res.status(401).json({
@@ -38,18 +40,19 @@ exports.login = async (req, res) => {
       });
     }
 
-    // 🔐 JWT
+    /* ================= JWT ================= */
     const token = jwt.sign(
       {
-        id: usuario.id,
+        sub: usuario.id,
         email: usuario.email,
-        rol: usuario.rol,
-        nombre: usuario.nombre
+        nombre: usuario.nombre,
+        rol: usuario.rol
       },
       SECRET,
       { expiresIn: '2h' }
     );
 
+    /* ================= RESPONSE ================= */
     return res.json({
       ok: true,
       token,

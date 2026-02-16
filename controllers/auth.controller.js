@@ -16,11 +16,18 @@ exports.login = async (req, res) => {
       });
     }
 
-    /* ================= USUARIO ================= */
-    const [usuarios] = await db.query(
-      'SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ?',
-      [email]
-    );
+    /* ================= USUARIO + ROL ================= */
+    const [usuarios] = await db.query(`
+      SELECT 
+        u.id,
+        u.nombre,
+        u.email,
+        u.password,
+        r.nombre AS rol
+      FROM usuarios u
+      INNER JOIN roles r ON r.id = u.rol_id
+      WHERE u.email = ?
+    `, [email]);
 
     if (!usuarios.length) {
       return res.status(401).json({
@@ -40,13 +47,16 @@ exports.login = async (req, res) => {
       });
     }
 
+    /* ================= ROLES ================= */
+    const roles = [usuario.rol.toLowerCase()]; // array de roles
+
     /* ================= JWT ================= */
     const token = jwt.sign(
       {
         sub: usuario.id,
         email: usuario.email,
         nombre: usuario.nombre,
-        rol: usuario.rol
+        roles: roles   // 👈 ahora es array
       },
       SECRET,
       { expiresIn: '2h' }
@@ -60,7 +70,7 @@ exports.login = async (req, res) => {
         id: usuario.id,
         nombre: usuario.nombre,
         email: usuario.email,
-        rol: usuario.rol
+        roles: roles   // 👈 array
       }
     });
 

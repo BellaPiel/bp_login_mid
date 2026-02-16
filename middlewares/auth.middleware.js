@@ -14,9 +14,12 @@ module.exports = (rolesPermitidos = []) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
 
-      /* ===== VALIDACIÓN POR ROL ===== */
       if (rolesPermitidos.length > 0) {
-        if (!rolesPermitidos.includes(decoded.rol)) {
+        // Aquí revisamos todos los roles del token
+        const userRoles = decoded.roles || [];
+        const tieneRol = rolesPermitidos.some(r => userRoles.includes(r));
+
+        if (!tieneRol) {
           return res.status(403).json({
             ok: false,
             message: 'No autorizado por rol'

@@ -26,7 +26,6 @@ module.exports = (rolesPermitidos = []) => {
           });
         }
       }
-
       next();
     } catch (err) {
       return res.status(401).json({ ok: false, message: 'Token inválido' });
